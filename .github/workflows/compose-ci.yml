@@ -27,7 +27,7 @@ jobs:
             echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
             echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}"
             echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
-          } > .env
+          } > backend/.env
 
       - name: docker compose up (build + wait)
         run: |
