@@ -31,9 +31,23 @@ jobs:
 
       - name: docker compose up (build + wait)
         run: |
-          docker compose version
+          set -e
           docker compose up -d --build --wait --wait-timeout 180
+        continue-on-error: true
+
+      - name: Show diagnostics on failure
+        if: failure()
+        run: |
+          echo "===== docker ps ====="
+          docker ps
+          echo "===== health inspect ====="
+          CID=$(docker ps -qf name=ecommerce_backend)
+          docker inspect --format '{{json .State.Health }}' "$CID" || true
+          echo "===== backend logs ====="
+          docker logs "$CID" || true
+          echo "===== compose ps ====="
           docker compose ps
+          exit 1
 
       - name: Smoke tests
         run: |
