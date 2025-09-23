@@ -57,7 +57,7 @@ const HomePage: React.FC = () => {
       <section className="relative min-h-screen bg-black text-white overflow-hidden">
         {/* Background Image */}
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black">
-          <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=1920&h=1080&fit=crop')] bg-cover bg-center opacity-30"></div>
+          <div className="absolute inset-0 bg-[url('https://can-am.brp.com/content/dam/global/en/can-am-off-road/my23/photos/lifestyle/ORV-SSV-MY21-Maverick-Digital-Promo-Hub-4096x2304-ENAU%20(1).jpg')] bg-cover bg-center opacity-40"></div>
         </div>
         
         {/* Content */}
