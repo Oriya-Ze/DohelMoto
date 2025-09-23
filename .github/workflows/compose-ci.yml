@@ -1,0 +1,54 @@
+name: Compose CI (with Secrets)
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+
+jobs:
+  compose:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create .env from GitHub Secrets
+        run: |
+          {
+            echo "DATABASE_URL=${{ secrets.DATABASE_URL }}"
+            echo "SECRET_KEY=${{ secrets.SECRET_KEY }}"
+            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}"
+            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
+            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}"
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+            echo "AWS_BUCKET_NAME=${{ secrets.AWS_BUCKET_NAME }}"
+            echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}"
+          } > .env
+
+      - name: docker compose up (build + wait)
+        run: |
+          docker compose version
+          docker compose up -d --build --wait --wait-timeout 180s
+          docker compose ps
+
+      - name: Smoke tests
+        run: |
+          curl -fsS http://localhost:8000/health || exit 1 || true
+          curl -fsS http://localhost:3000/health || true
+
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "## Compose status: ${{ job.status }}"
+            docker compose ps || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: docker compose down
+        if: always()
+        run: docker compose down -v --remove-orphans || true
+

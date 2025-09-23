@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ecommerce-config
+  namespace: ecommerce
+data:
+  DATABASE_URL: "postgresql://ecommerce_user:password@postgres-service:5432/ecommerce_db"
+  REDIS_URL: "redis://redis-service:6379"
+  ALLOWED_ORIGINS: "http://localhost:3000,https://yourdomain.com"
+  AWS_REGION: "us-east-1"
+  ALGORITHM: "HS256"
+  ACCESS_TOKEN_EXPIRE_MINUTES: "30"
+
