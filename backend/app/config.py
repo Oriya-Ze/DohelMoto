@@ -43,5 +43,8 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
-print(f"OpenAI API Key loaded: {settings.openai_api_key[:10]}..." if settings.openai_api_key else "No OpenAI API key found in environment!")
+if settings.openai_api_key:
+    print(f"OpenAI API Key loaded: {settings.openai_api_key[:10]}...")
+else:
+    print("No OpenAI API key found in environment - AI features will be disabled")
 

@@ -79,27 +79,22 @@ async def send_message(
         
         # Check if we have OpenAI API key
         if not settings.openai_api_key:
-            raise HTTPException(
-                status_code=502, 
-                detail={
-                    "ok": False,
-                    "error": "OpenAI API key not configured",
-                    "requestId": None
-                }
+            # Return a fallback response instead of raising an exception
+            ai_response = "I'm sorry, but the AI service is not available at the moment. Please try again later or contact support."
+            print("No OpenAI API key - using fallback response")
+        else:
+            # Create OpenAI client
+            client = OpenAI(api_key=settings.openai_api_key)
+            
+            # Make API call
+            response = await asyncio.to_thread(
+                client.chat.completions.create,
+                model="gpt-4o-mini",
+                messages=[{"role": "user", "content": message_data.message}]
             )
-        
-        # Create OpenAI client
-        client = OpenAI(api_key=settings.openai_api_key)
-        
-        # Make API call
-        response = await asyncio.to_thread(
-            client.chat.completions.create,
-            model="gpt-4o-mini",
-            messages=[{"role": "user", "content": message_data.message}]
-        )
-        
-        ai_response = response.choices[0].message.content
-        print(f"AI response: {ai_response}")
+            
+            ai_response = response.choices[0].message.content
+            print(f"AI response: {ai_response}")
         
     except APIError as e:
         # Print real OpenAI error
