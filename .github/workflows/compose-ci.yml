@@ -32,7 +32,7 @@ jobs:
       - name: docker compose up (build + wait)
         run: |
           docker compose version
-          docker compose up -d --build --wait --wait-timeout 180s
+          docker compose up -d --build --wait --wait-timeout 180
           docker compose ps
 
       - name: Smoke tests
