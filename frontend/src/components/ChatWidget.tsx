@@ -22,7 +22,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onToggle }) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      text: 'Hello! I\'m your AI shopping assistant. How can I help you find the perfect products today?',
+      text: 'Hello! I\'m your DohelMoto parts specialist. How can I help you find the right parts for your tractor or off-road vehicle today?',
       isUser: false,
       timestamp: new Date(),
     },
@@ -54,28 +54,49 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onToggle }) => {
     setIsLoading(true);
 
     try {
+      const token = localStorage.getItem('token');
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({ message: inputValue }),
+        body: JSON.stringify({ 
+          message: inputValue,
+          session_id: `session_${Date.now()}`
+        }),
       });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Chat API error:', errorData);
+        
+        const errorMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          text: `Error: ${errorData.detail?.error || errorData.error || 'Failed to get response'}`,
+          isUser: false,
+          timestamp: new Date(),
+        };
+
+        setMessages(prev => [...prev, errorMessage]);
+        return;
+      }
 
       const data = await response.json();
 
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: data.response || 'I\'m sorry, I couldn\'t process your request. Please try again.',
+        text: data.message || 'I\'m sorry, I couldn\'t process your request. Please try again.',
         isUser: false,
         timestamp: new Date(),
       };
 
       setMessages(prev => [...prev, aiMessage]);
     } catch (error) {
+      console.error('Chat error:', error);
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        text: 'I\'m sorry, I\'m having trouble connecting right now. Please try again later.',
+        text: `Connection error: ${error instanceof Error ? error.message : 'Unknown error'}`,
         isUser: false,
         timestamp: new Date(),
       };
@@ -103,7 +124,7 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onToggle }) => {
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={onToggle}
-          className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors z-50"
+          className="fixed bottom-6 right-6 bg-black text-white p-4 rounded-none shadow-lg hover:bg-gray-800 transition-colors z-50"
         >
           <ChatBubbleLeftRightIcon className="h-6 w-6" />
         </motion.button>
@@ -116,16 +137,16 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onToggle }) => {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 w-80 h-96 bg-white rounded-lg shadow-xl border border-gray-200 flex flex-col z-50"
+            className="fixed bottom-6 right-6 w-80 h-96 bg-white rounded-none shadow-xl border border-gray-200 flex flex-col z-50"
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 bg-black rounded-none flex items-center justify-center">
                   <ChatBubbleLeftRightIcon className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">AI Assistant</h3>
+                  <h3 className="font-semibold text-gray-900">Parts Specialist</h3>
                   <p className="text-xs text-gray-500">Online</p>
                 </div>
               </div>
@@ -145,15 +166,15 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onToggle }) => {
                   className={`flex ${message.isUser ? 'justify-end' : 'justify-start'}`}
                 >
                   <div
-                    className={`max-w-xs px-3 py-2 rounded-lg ${
+                    className={`max-w-xs px-3 py-2 rounded-none ${
                       message.isUser
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-black text-white'
                         : 'bg-gray-100 text-gray-900'
                     }`}
                   >
                     <p className="text-sm">{message.text}</p>
                     <p className={`text-xs mt-1 ${
-                      message.isUser ? 'text-blue-100' : 'text-gray-500'
+                      message.isUser ? 'text-gray-300' : 'text-gray-500'
                     }`}>
                       {message.timestamp.toLocaleTimeString([], { 
                         hour: '2-digit', 
@@ -188,13 +209,13 @@ const ChatWidget: React.FC<ChatWidgetProps> = ({ isOpen, onToggle }) => {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyPress={handleKeyPress}
                   placeholder="Type your message..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-none focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent"
                   disabled={isLoading}
                 />
                 <button
                   onClick={sendMessage}
                   disabled={!inputValue.trim() || isLoading}
-                  className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="bg-black text-white p-2 rounded-none hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <PaperAirplaneIcon className="h-5 w-5" />
                 </button>

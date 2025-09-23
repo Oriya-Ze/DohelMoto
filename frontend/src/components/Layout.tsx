@@ -32,8 +32,8 @@ const Layout: React.FC = () => {
           <div className="flex justify-between h-16">
             <div className="flex">
               <div className="flex-shrink-0 flex items-center">
-                <Link to="/" className="text-2xl font-bold text-blue-600">
-                  E-Shop
+                <Link to="/" className="text-2xl font-bold text-orange-600">
+                  DohelMoto
                 </Link>
               </div>
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -43,7 +43,7 @@ const Layout: React.FC = () => {
                     to={item.href}
                     className={`inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium ${
                       item.current
-                        ? 'border-blue-500 text-gray-900'
+                        ? 'border-orange-500 text-gray-900'
                         : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
                     }`}
                   >
@@ -62,8 +62,8 @@ const Layout: React.FC = () => {
                   </div>
                   <input
                     type="text"
-                    placeholder="Search products..."
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder="Search tractor parts..."
+                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-orange-500 focus:border-orange-500 sm:text-sm"
                   />
                 </div>
               </div>
@@ -75,7 +75,7 @@ const Layout: React.FC = () => {
               >
                 <ShoppingCartIcon className="h-6 w-6" />
                 {getTotalItems() > 0 && (
-                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-blue-600 text-white text-xs rounded-full flex items-center justify-center">
+                  <span className="absolute -top-1 -right-1 h-5 w-5 bg-orange-600 text-white text-xs rounded-full flex items-center justify-center">
                     {getTotalItems()}
                   </span>
                 )}
@@ -108,7 +108,7 @@ const Layout: React.FC = () => {
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                    className="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700"
                   >
                     Register
                   </Link>
@@ -142,7 +142,7 @@ const Layout: React.FC = () => {
                   to={item.href}
                   className={`block pl-3 pr-4 py-2 border-l-4 text-base font-medium ${
                     item.current
-                      ? 'bg-blue-50 border-blue-500 text-blue-700'
+                      ? 'bg-orange-50 border-orange-500 text-orange-700'
                       : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'
                   }`}
                   onClick={() => setIsMobileMenuOpen(false)}

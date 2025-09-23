@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ShoppingBag, 
+  Wrench, 
   Search, 
   ShoppingCart, 
   User, 
@@ -38,18 +38,18 @@ const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-soft sticky top-0 z-50">
+    <header className="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex justify-between items-center h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <motion.div
               whileHover={{ scale: 1.05 }}
-              className="h-8 w-8 bg-primary-600 rounded-lg flex items-center justify-center"
+              className="h-10 w-10 bg-black rounded-none flex items-center justify-center"
             >
-              <ShoppingBag className="h-5 w-5 text-white" />
+              <Wrench className="h-6 w-6 text-white" />
             </motion.div>
-            <span className="text-xl font-bold text-gray-900">E-Shop</span>
+            <span className="text-2xl font-bold text-black tracking-wide">DOHELMOTO</span>
           </Link>
 
           {/* Search Bar - Desktop */}
@@ -63,7 +63,7 @@ const Header: React.FC = () => {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="input pl-10 w-full"
-                placeholder="Search products..."
+                placeholder="Search tractor parts..."
               />
             </div>
           </form>
@@ -72,21 +72,21 @@ const Header: React.FC = () => {
           <nav className="hidden md:flex items-center space-x-8">
             <Link
               to="/shop"
-              className="text-gray-700 hover:text-primary-600 transition-colors duration-200"
+              className="text-gray-700 hover:text-orange-600 transition-colors duration-200"
             >
-              Shop
+              Parts
             </Link>
             <Link
               to="/categories"
-              className="text-gray-700 hover:text-primary-600 transition-colors duration-200"
+              className="text-gray-700 hover:text-orange-600 transition-colors duration-200"
             >
               Categories
             </Link>
             <Link
               to="/deals"
-              className="text-gray-700 hover:text-primary-600 transition-colors duration-200"
+              className="text-gray-700 hover:text-orange-600 transition-colors duration-200"
             >
-              Deals
+              Special Offers
             </Link>
           </nav>
 
@@ -227,7 +227,7 @@ const Header: React.FC = () => {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="input pl-10 w-full"
-                    placeholder="Search products..."
+                    placeholder="Search tractor parts..."
                   />
                 </div>
               </form>

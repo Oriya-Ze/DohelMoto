@@ -21,8 +21,8 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Helmet>
-          <title>E-Shop - AI-Powered Shopping Experience</title>
-          <meta name="description" content="Discover amazing products with our AI-powered shopping assistant" />
+          <title>DohelMoto - Premium Tractor & Off-Road Parts</title>
+          <meta name="description" content="Premium tractor and off-road vehicle parts with expert recommendations and fast delivery" />
         </Helmet>
         
         <Routes>

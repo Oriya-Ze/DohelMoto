@@ -6,9 +6,11 @@ from app.models import ChatMessage, User, Product, Category
 from app.schemas import ChatMessageCreate, ChatMessageResponse
 from app.auth import get_current_active_user
 from app.services.ai_service import ai_service
+from app.config import settings
 from uuid import UUID
 import json
 import asyncio
+from openai import OpenAI, APIError
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -58,6 +60,9 @@ async def send_message(
 ):
     """Send a message and get AI response"""
     
+    print(f"Received message: {message_data.message}")
+    print(f"User: {current_user.email}")
+    
     # Save user message to database
     user_message = ChatMessage(
         user_id=current_user.id,
@@ -68,14 +73,60 @@ async def send_message(
     db.add(user_message)
     db.commit()
     
-    # Get products and categories for AI context
-    products = db.query(Product).filter(Product.is_active == True).limit(20).all()
-    categories = db.query(Category).filter(Category.is_active == True).all()
-    
-    # Get AI response
-    ai_response = await ai_service.get_product_recommendations(
-        message_data.message, products, categories
-    )
+    # Get AI response with proper error handling
+    try:
+        print(f"Getting AI response for message: {message_data.message}")
+        
+        # Check if we have OpenAI API key
+        if not settings.openai_api_key:
+            raise HTTPException(
+                status_code=502, 
+                detail={
+                    "ok": False,
+                    "error": "OpenAI API key not configured",
+                    "requestId": None
+                }
+            )
+        
+        # Create OpenAI client
+        client = OpenAI(api_key=settings.openai_api_key)
+        
+        # Make API call
+        response = await asyncio.to_thread(
+            client.chat.completions.create,
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": message_data.message}]
+        )
+        
+        ai_response = response.choices[0].message.content
+        print(f"AI response: {ai_response}")
+        
+    except APIError as e:
+        # Print real OpenAI error
+        print(f"OpenAI API Error: {e.response.status if hasattr(e, 'response') else 'Unknown'}")
+        print(f"Error data: {e.response.data if hasattr(e, 'response') and hasattr(e.response, 'data') else e.message}")
+        
+        req_id = e.response.headers.get("x-request-id") if hasattr(e, 'response') and hasattr(e.response, 'headers') else None
+        
+        raise HTTPException(
+            status_code=502,
+            detail={
+                "ok": False,
+                "error": e.response.data.error.message if hasattr(e, 'response') and hasattr(e.response, 'data') and hasattr(e.response.data, 'error') else str(e),
+                "requestId": req_id
+            }
+        )
+    except Exception as e:
+        # Print real error
+        print(f"Unexpected error: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "ok": False,
+                "error": str(e),
+                "requestId": None
+            }
+        )
     
     # Save AI response to database
     ai_message = ChatMessage(
@@ -88,6 +139,7 @@ async def send_message(
     db.commit()
     db.refresh(ai_message)
     
+    print(f"Returning AI message: {ai_message.message}")
     return ai_message
 
 @router.get("/history/{session_id}", response_model=List[ChatMessageResponse])

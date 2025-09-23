@@ -119,11 +119,11 @@ CREATE INDEX IF NOT EXISTS idx_reviews_product_id ON reviews(product_id);
 
 -- Insert sample categories
 INSERT INTO categories (name, description, image_url) VALUES
-('Electronics', 'Electronic devices and gadgets', 'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=400'),
-('Clothing', 'Fashion and apparel', 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400'),
-('Home & Garden', 'Home decoration and garden tools', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400'),
-('Sports', 'Sports equipment and accessories', 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400'),
-('Books', 'Books and educational materials', 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400');
+('Engine Parts', 'Engine components and accessories for tractors and off-road vehicles', 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'),
+('Hydraulic Systems', 'Hydraulic pumps, cylinders, and system components', 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'),
+('Transmission', 'Transmission parts and drivetrain components', 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'),
+('Tires & Wheels', 'Tractor tires, rims, and wheel components', 'https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400'),
+('Attachments', 'Tractor attachments and implements', 'https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400');
 
 -- Insert sample products
 INSERT INTO products (name, description, price, category_id, image_urls, stock_quantity, is_featured, rating, review_count) 
@@ -138,15 +138,15 @@ SELECT
     p.rating,
     p.review_count
 FROM (VALUES
-    ('iPhone 15 Pro', 'Latest Apple smartphone with advanced features', 999.99, 'Electronics', ARRAY['https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400'], 50, true, 4.8, 125),
-    ('MacBook Air M3', 'Lightweight laptop with powerful M3 chip', 1299.99, 'Electronics', ARRAY['https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400'], 30, true, 4.9, 89),
-    ('Nike Air Max', 'Comfortable running shoes', 129.99, 'Clothing', ARRAY['https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400'], 100, false, 4.5, 234),
-    ('Designer T-Shirt', 'Premium cotton t-shirt', 29.99, 'Clothing', ARRAY['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400'], 200, false, 4.3, 156),
-    ('Smart Watch', 'Fitness tracking smartwatch', 299.99, 'Electronics', ARRAY['https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400'], 75, true, 4.6, 98),
-    ('Wireless Headphones', 'Noise-canceling wireless headphones', 199.99, 'Electronics', ARRAY['https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400'], 60, false, 4.4, 167),
-    ('Garden Tools Set', 'Complete set of garden tools', 79.99, 'Home & Garden', ARRAY['https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400'], 40, false, 4.2, 45),
-    ('Basketball', 'Professional basketball', 49.99, 'Sports', ARRAY['https://images.unsplash.com/photo-1546519638-68e109498ffc?w=400'], 80, false, 4.7, 78),
-    ('Programming Book', 'Learn Python programming', 39.99, 'Books', ARRAY['https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400'], 120, false, 4.8, 203)
+    ('Tractor Hydraulic Pump', 'High-pressure hydraulic pump for tractors and construction equipment', 1299.99, 'Hydraulic Systems', ARRAY['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'], 15, true, 4.8, 25),
+    ('Heavy Duty Tractor Tires', 'Premium agricultural tires for all terrain conditions', 899.99, 'Tires & Wheels', ARRAY['https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=400'], 8, true, 4.9, 18),
+    ('Tractor Engine Filter Set', 'Complete engine filter kit for diesel tractors', 149.99, 'Engine Parts', ARRAY['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'], 25, false, 4.5, 42),
+    ('Hydraulic Cylinder', 'Heavy-duty hydraulic cylinder for loader attachments', 799.99, 'Hydraulic Systems', ARRAY['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'], 12, true, 4.6, 31),
+    ('Tractor Transmission Kit', 'Complete transmission rebuild kit', 2499.99, 'Transmission', ARRAY['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'], 5, true, 4.7, 12),
+    ('Tractor Seat', 'Comfortable suspension seat for long hours', 299.99, 'Engine Parts', ARRAY['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'], 20, false, 4.4, 28),
+    ('Tractor Blade Attachment', 'Heavy-duty blade for grading and leveling', 1299.99, 'Attachments', ARRAY['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'], 6, false, 4.2, 15),
+    ('Tractor Radiator', 'High-capacity radiator for cooling systems', 399.99, 'Engine Parts', ARRAY['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'], 18, false, 4.6, 22),
+    ('Tractor PTO Shaft', 'Power take-off shaft for implements', 199.99, 'Transmission', ARRAY['https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=400'], 30, false, 4.8, 35)
 ) AS p(name, description, price, category_name, image_urls, stock_quantity, is_featured, rating, review_count)
 JOIN categories c ON c.name = p.category_name;
 

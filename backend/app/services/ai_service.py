@@ -1,15 +1,26 @@
 import openai
+from openai import OpenAI, APIError
 from typing import List, Dict, Any
 from app.config import settings
 from app.models import Product, Category
 from sqlalchemy.orm import Session
-
-# Initialize OpenAI client
-openai.api_key = settings.openai_api_key
+import os
 
 class AIService:
     def __init__(self):
-        self.client = openai.OpenAI(api_key=settings.openai_api_key)
+        print(f"Initializing AI Service...")
+        print(f"OpenAI API Key from settings: {settings.openai_api_key[:10]}..." if settings.openai_api_key else "No API key found!")
+        
+        if not settings.openai_api_key:
+            print("WARNING: No OpenAI API key found! Chat will use fallback responses.")
+            self.client = None
+        else:
+            try:
+                self.client = OpenAI(api_key=settings.openai_api_key)
+                print("OpenAI client initialized successfully!")
+            except Exception as e:
+                print(f"Failed to initialize OpenAI client: {e}")
+                self.client = None
     
     async def get_product_recommendations(
         self, 
@@ -19,47 +30,21 @@ class AIService:
     ) -> str:
         """Get AI-powered product recommendations based on user message"""
         
-        # Create product context
-        product_context = []
-        for product in products[:20]:  # Limit to top 20 products for context
-            product_info = f"""
-            Product: {product.name}
-            Description: {product.description or 'No description'}
-            Price: ${product.price}
-            Category: {product.category.name if product.category else 'Uncategorized'}
-            Rating: {product.rating}/5 ({product.review_count} reviews)
-            In Stock: {product.stock_quantity > 0}
-            """
-            product_context.append(product_info)
-        
-        # Create category context
-        category_context = "\n".join([f"- {cat.name}: {cat.description or 'No description'}" 
-                                    for cat in categories])
-        
-        system_prompt = f"""
-        You are a helpful shopping assistant for an e-commerce store. 
-        
-        Available Categories:
-        {category_context}
-        
-        Available Products:
-        {chr(10).join(product_context)}
-        
-        Your task is to:
-        1. Understand what the customer is looking for
-        2. Recommend specific products from the available inventory
-        3. Provide helpful information about products
-        4. Be friendly and professional
-        5. If no products match their request, suggest similar alternatives
-        6. Keep responses concise but informative
-        7. Always mention product names and prices when recommending
-        
-        Respond in a conversational, helpful tone.
-        """
+        if not self.client:
+            print("No OpenAI client available, using fallback response")
+            return self._get_fallback_response(user_message)
         
         try:
+            print(f"Making OpenAI API call with message: {user_message[:50]}...")
+            
+            # Simple system prompt
+            system_prompt = """You are a specialized tractor and off-road vehicle parts expert for DohelMoto. 
+            Help customers find the right parts for their tractors and off-road vehicles. 
+            Be knowledgeable about agricultural and construction equipment. 
+            Keep responses helpful and professional."""
+            
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
@@ -68,35 +53,43 @@ class AIService:
                 temperature=0.7
             )
             
-            return response.choices[0].message.content
+            ai_response = response.choices[0].message.content
+            print(f"OpenAI response: {ai_response[:100]}...")
+            return ai_response
             
+        except APIError as e:
+            print(f"OpenAI API Error: {e}")
+            return self._get_fallback_response(user_message)
         except Exception as e:
             print(f"AI service error: {e}")
-            return "I apologize, but I'm having trouble processing your request right now. Please try again later or browse our products directly."
+            return self._get_fallback_response(user_message)
+    
+    def _get_fallback_response(self, user_message: str) -> str:
+        """Get fallback response based on user message"""
+        if any(word in user_message.lower() for word in ['tire', 'tires', 'wheel', 'wheels']):
+            return "I can help you find the right tires for your tractor. We have heavy-duty agricultural tires in various sizes. What type of terrain will you be working on?"
+        elif any(word in user_message.lower() for word in ['engine', 'motor', 'filter', 'oil']):
+            return "For engine parts, we have filters, oil systems, and engine components. What specific engine model are you working with?"
+        elif any(word in user_message.lower() for word in ['hydraulic', 'pump', 'cylinder']):
+            return "Our hydraulic systems include pumps, cylinders, and hoses. What hydraulic application do you need parts for?"
+        else:
+            return "I can help you find tractor and off-road vehicle parts. What specific part or system are you looking for?"
     
     async def get_general_chat_response(self, user_message: str) -> str:
         """Get general chat response for non-product related queries"""
         
-        system_prompt = """
-        You are a helpful customer service assistant for an e-commerce store.
-        
-        You can help with:
-        - General questions about shopping
-        - Order inquiries
-        - Return and refund policies
-        - Shipping information
-        - Account-related questions
-        - Product recommendations (ask for more details)
-        
-        Be friendly, helpful, and professional. If you can't help with something specific,
-        direct them to contact customer service or browse the store.
-        
-        Keep responses concise and helpful.
-        """
+        if not self.client:
+            print("No OpenAI client available for general chat, using fallback response")
+            return self._get_fallback_response(user_message)
         
         try:
+            print(f"Making OpenAI API call for general chat with message: {user_message[:50]}...")
+            
+            system_prompt = """You are a helpful customer service assistant for DohelMoto, specializing in tractor and off-road vehicle parts.
+            Be friendly, professional, and knowledgeable about agricultural and construction equipment."""
+            
             response = self.client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_message}
@@ -105,11 +98,16 @@ class AIService:
                 temperature=0.7
             )
             
-            return response.choices[0].message.content
+            ai_response = response.choices[0].message.content
+            print(f"OpenAI general chat response: {ai_response[:100]}...")
+            return ai_response
             
+        except APIError as e:
+            print(f"OpenAI API Error: {e}")
+            return self._get_fallback_response(user_message)
         except Exception as e:
             print(f"AI service error: {e}")
-            return "I apologize, but I'm having trouble processing your request right now. Please try again later."
+            return self._get_fallback_response(user_message)
 
 # Global AI service instance
 ai_service = AIService()
