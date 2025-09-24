@@ -34,7 +34,6 @@ services:
     environment:
       - DATABASE_URL=postgresql://ecommerce_user:${POSTGRES_PASSWORD:-ecommerce_password}@database:5432/ecommerce_db
       - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     ports:
       - "8000:8000"
     depends_on:
