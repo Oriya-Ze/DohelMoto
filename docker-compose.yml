@@ -46,10 +46,10 @@ services:
       - ./backend:/app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8000/health || exit 1"]
+      test: ["CMD","python","-c","import urllib.request,sys; urllib.request.urlopen('http://127.0.0.1:8000/health',timeout=2); print('ok')"]
       interval: 10s
       timeout: 5s
-      retries: 12
+      retries: 5
       start_period: 25s
 
   # React Frontend with Nginx
