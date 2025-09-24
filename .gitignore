@@ -1,12 +1,4 @@
 .env
 *.env
 **/*.env
-.env
-*.env
-**/*.env
-.env
-*.env
-**/*.env
-.env
-*.env
-**/*.env
+.gitignore
