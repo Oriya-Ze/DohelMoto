@@ -8,7 +8,7 @@ services:
     environment:
       POSTGRES_DB: ecommerce_db
       POSTGRES_USER: ecommerce_user
-      POSTGRES_PASSWORD: ecommerce_password
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ecommerce_password}
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5433:5432"
@@ -32,7 +32,9 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - DATABASE_URL=postgresql://ecommerce_user:ecommerce_password@database:5432/ecommerce_db
+      - DATABASE_URL=postgresql://ecommerce_user:${POSTGRES_PASSWORD:-ecommerce_password}@database:5432/ecommerce_db
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-change-in-production}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
     ports:
       - "8000:8000"
     depends_on:
