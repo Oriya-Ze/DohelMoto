@@ -162,9 +162,66 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const loginWithGoogle = async () => {
     try {
-      // Redirect to Google OAuth
-      window.location.href = `${API_BASE_URL}/auth/google`;
+      const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || '14699536724-etdb0dco7r53sepk33p9356aaechv2l8.apps.googleusercontent.com';
+      console.log('Google Client ID:', googleClientId);
+      
+      if (!googleClientId) {
+        toast.error('Google OAuth not configured. Please contact support.');
+        return;
+      }
+
+      // Load Google OAuth library if not already loaded
+      if (!window.google) {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        document.head.appendChild(script);
+        
+        await new Promise((resolve, reject) => {
+          script.onload = resolve;
+          script.onerror = reject;
+        });
+      }
+
+      // Initialize Google OAuth
+      window.google.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: async (response: any) => {
+          try {
+            console.log('Google OAuth response received:', response);
+            
+            // Send the credential to backend for verification
+            const result = await api.googleAuth(response.credential);
+            const { access_token } = result.data;
+            
+            // Store token and update user state
+            localStorage.setItem('token', access_token);
+            await fetchUser();
+            navigate('/');
+            toast.success('Logged in with Google successfully!');
+          } catch (error: any) {
+            console.error('Google auth error:', error);
+            const errorMessage = error.response?.data?.detail || 'Google login failed';
+            toast.error(errorMessage);
+          }
+        },
+        auto_select: false,
+        cancel_on_tap_outside: true
+      });
+
+      // Trigger Google OAuth popup
+      window.google.accounts.id.prompt((notification: any) => {
+        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+          // Fallback to manual button click
+          const button = document.getElementById('google-login-button');
+          if (button) {
+            button.click();
+          }
+        }
+      });
     } catch (error) {
+      console.error('Google login error:', error);
       toast.error('Google login failed');
     }
   };

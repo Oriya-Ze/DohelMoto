@@ -88,6 +88,10 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
 def verify_google_token(token: str) -> Optional[dict]:
     """Verify Google OAuth token and return user info"""
     try:
+        if not settings.google_client_id:
+            print("Google Client ID not configured")
+            return None
+            
         # Verify the token
         idinfo = id_token.verify_oauth2_token(
             token, 
@@ -107,6 +111,9 @@ def verify_google_token(token: str) -> Optional[dict]:
         }
     except ValueError as e:
         print(f"Google token verification failed: {e}")
+        return None
+    except Exception as e:
+        print(f"Unexpected error during Google token verification: {e}")
         return None
 
 def create_or_get_google_user(db: Session, google_user_info: dict) -> User:

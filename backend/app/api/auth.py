@@ -74,24 +74,33 @@ async def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
 @router.post("/google", response_model=Token)
 async def google_auth(google_data: GoogleAuthRequest, db: Session = Depends(get_db)):
     """Authenticate user with Google OAuth"""
-    # Verify Google token
-    google_user_info = verify_google_token(google_data.token)
-    if not google_user_info:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid Google token"
+    try:
+        # Verify Google token
+        google_user_info = verify_google_token(google_data.token)
+        if not google_user_info:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid Google token or Google OAuth not configured"
+            )
+        
+        # Create or get user
+        user = create_or_get_google_user(db, google_user_info)
+        
+        # Create access token
+        access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
+        access_token = create_access_token(
+            data={"sub": str(user.id)}, expires_delta=access_token_expires
         )
-    
-    # Create or get user
-    user = create_or_get_google_user(db, google_user_info)
-    
-    # Create access token
-    access_token_expires = timedelta(minutes=settings.access_token_expire_minutes)
-    access_token = create_access_token(
-        data={"sub": str(user.id)}, expires_delta=access_token_expires
-    )
-    
-    return {"access_token": access_token, "token_type": "bearer"}
+        
+        return {"access_token": access_token, "token_type": "bearer"}
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Google auth error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Internal server error during Google authentication"
+        )
 
 @router.get("/me", response_model=UserResponse)
 async def get_current_user_info(current_user: User = Depends(get_current_active_user)):

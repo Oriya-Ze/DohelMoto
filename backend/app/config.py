@@ -1,8 +1,16 @@
 from pydantic_settings import BaseSettings
+from pydantic import ConfigDict
 from typing import Optional
 
 
 class Settings(BaseSettings):
+    # Pydantic v2 configuration
+    model_config = ConfigDict(
+        env_file=".env",
+        extra="ignore",  # Allow extra environment variables
+        case_sensitive=False  # Allow both uppercase and lowercase env vars
+    )
+    
     # Database
     database_url: str = "postgresql://ecommerce_user:ecommerce_password@database:5432/ecommerce_db"
     
@@ -37,9 +45,6 @@ class Settings(BaseSettings):
     
     # Redis
     redis_url: str = "redis://redis:6379"
-    
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()
